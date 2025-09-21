@@ -19,5 +19,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Seeders pour KAMRI Marketplace
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+            ArticleSeeder::class,
+            LiveStreamSeeder::class,
+        ]);
     }
 }
