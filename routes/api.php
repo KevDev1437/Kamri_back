@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\LiveStreamController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('addresses', AddressController::class)->only(['index','store','show','update','destroy']);
     Route::post('addresses/{address}/default-shipping', [AddressController::class, 'setDefaultShipping']);
     Route::post('addresses/{address}/default-billing', [AddressController::class, 'setDefaultBilling']);
+
+    // Wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist', [WishlistController::class, 'store']);
+    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy']);
+    Route::delete('/wishlist', [WishlistController::class, 'clear']); // optionnel
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']); // optionnel
 });
 
 // Catégories

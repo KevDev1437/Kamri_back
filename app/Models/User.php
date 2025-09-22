@@ -56,4 +56,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Address::class);
     }
+
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(\App\Models\Product::class, 'wishlist_items')
+            ->withTimestamps()
+            ->orderByPivot('created_at', 'desc');
+    }
 }

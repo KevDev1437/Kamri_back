@@ -73,4 +73,9 @@ class Product extends Model
     {
         return !is_null($this->sale_price) && $this->sale_price < $this->price;
     }
+
+    public function wishedBy()
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'wishlist_items')->withTimestamps();
+    }
 }
