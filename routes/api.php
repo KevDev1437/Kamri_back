@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ShippingController;
 use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\PaymentsController;
+use App\Http\Controllers\Api\StripeWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +75,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shipping/methods', [ShippingController::class, 'index']);
     Route::post('/coupons/validate', [CouponsController::class, 'validateCode']);
     Route::post('/checkout', [CheckoutController::class, 'placeOrder']);
+
+    // Payments
+    Route::post('/payments/create-intent', [PaymentsController::class, 'createIntent']);
 });
 
 // Reviews (GET public, POST protégés)
@@ -81,6 +86,9 @@ Route::post('/products/{product}/reviews', [ProductReviewController::class, 'sto
 
 Route::post('/reviews/{review}/helpful', [ReviewActionsController::class, 'helpful'])->middleware('auth:sanctum');
 Route::post('/reviews/{review}/report', [ReviewActionsController::class, 'report'])->middleware('auth:sanctum');
+
+// Webhooks (public)
+Route::post('/payments/webhook', StripeWebhookController::class);
 
 // Catégories
 Route::get('/categories', [CategoryController::class, 'index']);

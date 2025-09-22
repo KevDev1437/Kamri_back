@@ -98,6 +98,29 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            // Si paymentIntentId fourni, on lie l'order au payment et on vérifie Stripe
+            if ($req->filled('paymentIntentId')) {
+                $stripe = \App\Services\StripeService::make();
+                $pi = $stripe->retrieveIntent($req->input('paymentIntentId'));
+
+                $payment = \App\Models\Payment::firstOrCreate(
+                    ['intent_id' => $pi->id],
+                    [
+                        'user_id' => $user->id,
+                        'amount' => round($totals['total'], 2),
+                        'currency' => 'EUR',
+                        'status' => $pi->status,
+                    ]
+                );
+                $payment->order_id = $order->id;
+                $payment->save();
+
+                if (in_array($pi->status, ['succeeded','processing','requires_capture'], true)) {
+                    $order->update(['status' => 'paid', 'paid_at' => now(), 'payment_id' => $payment->id]);
+                    dispatch(new \App\Jobs\ProcessOrderPaid($order->id));
+                }
+            }
+
             // Optionnel : incrémenter l'usage du coupon si payé
             if ($coupon && $order->status === 'paid') {
                 $coupon->increment('used_count');
