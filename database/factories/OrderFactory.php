@@ -2,58 +2,47 @@
 
 namespace Database\Factories;
 
-use App\Models\Order;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
- */
 class OrderFactory extends Factory
 {
-    protected $model = Order::class;
-
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
-            'number' => 'CMD-' . now()->format('Y') . '-' . str_pad($this->faker->unique()->numberBetween(1, 999999), 6, '0', STR_PAD_LEFT),
-            'status' => $this->faker->randomElement(['pending', 'paid', 'failed', 'canceled']),
+            'user_id' => User::inRandomOrder()->value('id') ?? User::factory(),
+            'number' => 'CMD-' . now()->format('Y') . '-' . fake()->unique()->numberBetween(100000, 999999),
+            'status' => fake()->randomElement(['pending', 'paid', 'processing', 'shipped', 'delivered', 'canceled']),
             'currency' => 'EUR',
-            'subtotal' => $this->faker->randomFloat(2, 10, 200),
+            'subtotal' => 0, // Sera calculé dans le seeder
             'discount' => 0,
-            'shipping_price' => $this->faker->randomFloat(2, 0, 20),
-            'tax' => $this->faker->randomFloat(2, 0, 50),
-            'total' => $this->faker->randomFloat(2, 20, 300),
+            'shipping_price' => fake()->randomElement([0, 4.99, 6.99, 9.99]),
+            'tax' => 0, // Sera calculé dans le seeder
+            'total' => 0, // Sera calculé dans le seeder
+            'paid_at' => fake()->boolean(80) ? fake()->dateTimeBetween('-2 months', 'now') : null,
             'delivery_method' => [
-                'code' => 'standard',
-                'label' => 'Livraison Standard',
-                'eta' => '2-3 jours',
-                'price' => 4.99
+                'code' => fake()->randomElement(['standard', 'express', 'pickup']),
+                'label' => fake()->randomElement(['Livraison standard', 'Livraison express', 'Retrait en magasin']),
+                'eta' => fake()->randomElement(['2-3 jours', '24h', '1h']),
+                'price' => fake()->randomFloat(2, 0, 9.99),
             ],
             'shipping_address' => [
-                'firstName' => $this->faker->firstName(),
-                'lastName' => $this->faker->lastName(),
-                'line1' => $this->faker->streetAddress(),
-                'city' => $this->faker->city(),
-                'postalCode' => $this->faker->postcode(),
-                'country' => 'BE'
+                'firstName' => fake()->firstName(),
+                'lastName' => fake()->lastName(),
+                'line1' => fake()->streetAddress(),
+                'postalCode' => (string) fake()->numberBetween(1000, 9999),
+                'city' => fake()->city(),
+                'country' => fake()->randomElement(['BE', 'FR', 'DE', 'NL', 'LU']),
             ],
             'billing_address' => [
-                'firstName' => $this->faker->firstName(),
-                'lastName' => $this->faker->lastName(),
-                'line1' => $this->faker->streetAddress(),
-                'city' => $this->faker->city(),
-                'postalCode' => $this->faker->postcode(),
-                'country' => 'BE'
+                'firstName' => fake()->firstName(),
+                'lastName' => fake()->lastName(),
+                'line1' => fake()->streetAddress(),
+                'postalCode' => (string) fake()->numberBetween(1000, 9999),
+                'city' => fake()->city(),
+                'country' => fake()->randomElement(['BE', 'FR', 'DE', 'NL', 'LU']),
             ],
-            'payment_intent_id' => null,
-            'meta' => null,
+            'created_at' => fake()->dateTimeBetween('-2 months', 'now'),
         ];
     }
 }

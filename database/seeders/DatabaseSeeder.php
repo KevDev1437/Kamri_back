@@ -13,19 +13,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Exécuter le DemoSeeder uniquement en local ou si SEED_DEMO=true
+        if (app()->environment('local') || filter_var(env('SEED_DEMO', false), FILTER_VALIDATE_BOOL)) {
+            $this->call(DemoSeeder::class);
+        } else {
+            $this->command->warn('DemoSeeder ignoré (environnement non-local et SEED_DEMO!=true)');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        // Seeders pour KAMRI Marketplace
-        $this->call([
-            CategorySeeder::class,
-            ProductSeeder::class,
-            ArticleSeeder::class,
-            LiveStreamSeeder::class,
-        ]);
+            // Seeders de base pour les autres environnements
+            $this->call([
+                CategorySeeder::class,
+                ProductSeeder::class,
+                ArticleSeeder::class,
+                LiveStreamSeeder::class,
+            ]);
+        }
     }
 }
