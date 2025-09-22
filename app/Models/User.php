@@ -73,4 +73,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(\App\Models\Cart::class);
     }
+
+    public function wishlist()
+    {
+        return $this->hasOne(\App\Models\Wishlist::class);
+    }
 }

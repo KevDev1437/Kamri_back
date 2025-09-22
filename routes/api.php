@@ -50,11 +50,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('addresses/{address}/default-billing', [AddressController::class, 'setDefaultBilling']);
 
     // Wishlist
-    Route::get('/wishlist', [WishlistController::class, 'index']);
-    Route::post('/wishlist', [WishlistController::class, 'store']);
-    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy']);
-    Route::delete('/wishlist', [WishlistController::class, 'clear']); // optionnel
-    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']); // optionnel
+    Route::get('/wishlist', [WishlistController::class, 'show']);
+    Route::post('/wishlist', [WishlistController::class, 'add']);
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']);
+    Route::delete('/wishlist/{item}', [WishlistController::class, 'removeItem']);
+    Route::delete('/wishlist', [WishlistController::class, 'clear']);
+    Route::post('/wishlist/merge', [WishlistController::class, 'merge']);
+    Route::post('/wishlist/move-to-cart', [WishlistController::class, 'moveToCart']);
 
     // Cart
     Route::get('/cart', [CartController::class, 'show']);
