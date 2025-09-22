@@ -19,7 +19,6 @@ use App\Http\Controllers\Api\PaymentsController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\ReviewsController;
-use App\Http\Controllers\Api\CouponsController;
 
 /*
 |--------------------------------------------------------------------------

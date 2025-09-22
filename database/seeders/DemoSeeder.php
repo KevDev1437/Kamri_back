@@ -52,12 +52,14 @@ class DemoSeeder extends Seeder
 
             // 2) Produits
             $this->command->info('🛍️ Création des produits...');
-            $products = Product::factory(200)->create();
+            $products = collect();
 
-            // Assigner des catégories aux produits
-            foreach ($products as $product) {
-                $product->category_id = $categories->random()->id;
-                $product->save();
+            // Créer les produits avec des catégories assignées
+            for ($i = 0; $i < 200; $i++) {
+                $product = Product::factory()->create([
+                    'category_id' => $categories->random()->id
+                ]);
+                $products->push($product);
             }
 
             // 3) Utilisateur admin
@@ -164,45 +166,21 @@ class DemoSeeder extends Seeder
             'starts_at' => now()->subDays(30),
             'ends_at' => now()->addDays(30),
             'min_subtotal' => 30.00,
-            'max_redemptions' => 1000,
-            'per_user_limit' => 1,
-            'applies_to' => 'all',
-            'notes' => 'Coupon de bienvenue 10%',
+            'max_uses' => 1000,
+            'used_count' => 0,
         ]);
 
-        // Coupon fixe - catégorie High-tech
-        $highTechCategory = $categories->where('name', 'like', '%High-tech%')->first();
-        if ($highTechCategory) {
-            $coupon = Coupon::firstOrCreate(['code' => 'SAVE20'], [
-                'code' => 'SAVE20',
-                'type' => 'fixed',
-                'value' => 20.00,
-                'active' => true,
-                'starts_at' => now()->subDays(15),
-                'ends_at' => now()->addDays(15),
-                'min_subtotal' => 50.00,
-                'max_redemptions' => 500,
-                'per_user_limit' => 2,
-                'applies_to' => 'categories',
-                'notes' => '20€ de réduction sur la High-tech',
-            ]);
-
-            $coupon->categories()->sync([$highTechCategory->id]);
-        }
-
-        // Coupon livraison gratuite
-        Coupon::firstOrCreate(['code' => 'FREESHIP'], [
-            'code' => 'FREESHIP',
-            'type' => 'free_shipping',
-            'value' => null,
+        // Coupon fixe
+        Coupon::firstOrCreate(['code' => 'SAVE20'], [
+            'code' => 'SAVE20',
+            'type' => 'fixed',
+            'value' => 20.00,
             'active' => true,
-            'starts_at' => now()->subDays(7),
-            'ends_at' => now()->addDays(7),
-            'min_subtotal' => 25.00,
-            'max_redemptions' => 2000,
-            'per_user_limit' => 3,
-            'applies_to' => 'all',
-            'notes' => 'Livraison gratuite',
+            'starts_at' => now()->subDays(15),
+            'ends_at' => now()->addDays(15),
+            'min_subtotal' => 50.00,
+            'max_uses' => 500,
+            'used_count' => 0,
         ]);
     }
 

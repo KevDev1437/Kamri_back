@@ -12,7 +12,7 @@ class OrderFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->value('id') ?? User::factory(),
             'number' => 'CMD-' . now()->format('Y') . '-' . fake()->unique()->numberBetween(100000, 999999),
-            'status' => fake()->randomElement(['pending', 'paid', 'processing', 'shipped', 'delivered', 'canceled']),
+            'status' => fake()->randomElement(['pending', 'paid', 'failed', 'canceled']),
             'currency' => 'EUR',
             'subtotal' => 0, // Sera calculé dans le seeder
             'discount' => 0,

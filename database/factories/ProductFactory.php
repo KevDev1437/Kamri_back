@@ -9,7 +9,7 @@ class ProductFactory extends Factory
 {
     public function definition(): array
     {
-        $name = ucfirst(fake()->unique()->words(3, true));
+        $name = ucfirst(fake()->words(3, true)) . ' ' . fake()->unique()->numberBetween(1, 9999);
         $price = fake()->randomFloat(2, 5, 300);
         $salePrice = fake()->boolean(30) ? $price - fake()->randomFloat(2, 5, 50) : null;
 
@@ -23,7 +23,7 @@ class ProductFactory extends Factory
             'short_description' => fake()->sentence(10),
             'price' => $price,
             'sale_price' => $salePrice,
-            'sku' => 'SKU-' . fake()->unique()->numberBetween(10000, 99999),
+            'sku' => 'SKU-' . fake()->unique()->numberBetween(100000, 999999),
             'stock_quantity' => fake()->numberBetween(0, 200),
             'image' => $image,
             'images' => [

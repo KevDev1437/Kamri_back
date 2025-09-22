@@ -89,7 +89,7 @@ try {
 
         if ($reviewsCount > 0) {
             $verifiedReviews = \App\Models\Review::where('verified', true)->count();
-            $reviewsWithPhotos = \App\Models\Review::whereNotNull('photos')->count();
+            $reviewsWithPhotos = 0; // Pas de colonne photos dans cette version
             $avgRating = \App\Models\Review::avg('rating');
 
             echo "   • Avis vérifiés : $verifiedReviews\n";
