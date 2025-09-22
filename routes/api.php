@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ReviewActionsController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\ShippingController;
+use App\Http\Controllers\Api\CouponsController;
+use App\Http\Controllers\Api\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +68,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/cart/{item}', [CartController::class, 'removeItem']);
     Route::delete('/cart', [CartController::class, 'clear']);
     Route::post('/cart/merge', [CartController::class, 'merge']);
+
+    // Checkout
+    Route::get('/shipping/methods', [ShippingController::class, 'index']);
+    Route::post('/coupons/validate', [CouponsController::class, 'validateCode']);
+    Route::post('/checkout', [CheckoutController::class, 'placeOrder']);
 });
 
 // Reviews (GET public, POST protégés)
