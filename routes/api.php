@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\LiveStreamController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\ProductReviewController;
+use App\Http\Controllers\Api\ReviewActionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +55,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/wishlist', [WishlistController::class, 'clear']); // optionnel
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']); // optionnel
 });
+
+// Reviews (GET public, POST protégés)
+Route::get('/products/{product}/reviews', [ProductReviewController::class, 'index']);
+Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store'])->middleware('auth:sanctum');
+
+Route::post('/reviews/{review}/helpful', [ReviewActionsController::class, 'helpful'])->middleware('auth:sanctum');
+Route::post('/reviews/{review}/report', [ReviewActionsController::class, 'report'])->middleware('auth:sanctum');
 
 // Catégories
 Route::get('/categories', [CategoryController::class, 'index']);

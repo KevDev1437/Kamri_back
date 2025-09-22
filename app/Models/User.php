@@ -63,4 +63,9 @@ class User extends Authenticatable
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
 }

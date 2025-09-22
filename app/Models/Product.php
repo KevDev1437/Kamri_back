@@ -78,4 +78,9 @@ class Product extends Model
     {
         return $this->belongsToMany(\App\Models\User::class, 'wishlist_items')->withTimestamps();
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
 }
