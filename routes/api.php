@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\PaymentsController;
 use App\Http\Controllers\Api\StripeWebhookController;
+use App\Http\Controllers\Api\OrdersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Payments
     Route::post('/payments/create-intent', [PaymentsController::class, 'createIntent']);
+
+    // Orders
+    Route::get('/orders', [OrdersController::class, 'index']);
+    Route::get('/orders/{order}', [OrdersController::class, 'show'])->can('view', 'order');
+    Route::get('/orders/{order}/invoice', [OrdersController::class, 'invoice'])->can('view', 'order');
+    Route::post('/orders/{order}/reorder', [OrdersController::class, 'reorder'])->can('view', 'order');
 });
 
 // Reviews (GET public, POST protégés)

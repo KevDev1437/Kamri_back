@@ -58,7 +58,7 @@ class CheckoutController extends Controller
         try {
             $order = Order::create([
                 'user_id' => $user->id,
-                'number' => OrderNumberGenerator::make(),
+                'number' => \App\Services\OrderNumberService::generate(),
                 'status' => $req->input('paymentIntentId') ? 'paid' : 'pending',
                 'currency' => 'EUR',
                 'subtotal' => $totals['subtotal'],
