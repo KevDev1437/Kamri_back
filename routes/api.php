@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\LiveStreamController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::put('/change-password', [AuthController::class, 'changePassword']);
+
+    // Adresses
+    Route::apiResource('addresses', AddressController::class)->only(['index','store','show','update','destroy']);
+    Route::post('addresses/{address}/default-shipping', [AddressController::class, 'setDefaultShipping']);
+    Route::post('addresses/{address}/default-billing', [AddressController::class, 'setDefaultBilling']);
 });
 
 // Catégories
