@@ -22,13 +22,16 @@ class ReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
             'product_id' => Product::factory(),
+            'user_id' => User::factory(),
             'rating' => $this->faker->numberBetween(1, 5),
-            'comment' => $this->faker->paragraphs(2, true),
-            'anonymous' => $this->faker->boolean(20), // 20% anonymous
-            'verified' => $this->faker->boolean(80), // 80% verified
+            'comment' => $this->faker->paragraph(3),
+            'photos' => null,
             'helpful_count' => $this->faker->numberBetween(0, 50),
+            'reported_count' => 0,
+            'verified' => true,
+            'anonymous' => $this->faker->boolean(10), // 10% chance of being anonymous
+            'status' => 'published',
         ];
     }
 }

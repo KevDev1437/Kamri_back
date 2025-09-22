@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\PaymentsController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\OrdersController;
+use App\Http\Controllers\Api\ReviewsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,14 +86,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{order}', [OrdersController::class, 'show'])->can('view', 'order');
     Route::get('/orders/{order}/invoice', [OrdersController::class, 'invoice'])->can('view', 'order');
     Route::post('/orders/{order}/reorder', [OrdersController::class, 'reorder'])->can('view', 'order');
+
+    // Reviews
+    Route::post('/products/{product}/reviews', [ReviewsController::class, 'store']);
+    Route::post('/reviews/{review}/helpful', [ReviewsController::class, 'voteHelpful']);
+    Route::post('/reviews/{review}/report', [ReviewsController::class, 'report']);
 });
 
 // Reviews (GET public, POST protégés)
-Route::get('/products/{product}/reviews', [ProductReviewController::class, 'index']);
-Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store'])->middleware('auth:sanctum');
+Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
 
-Route::post('/reviews/{review}/helpful', [ReviewActionsController::class, 'helpful'])->middleware('auth:sanctum');
-Route::post('/reviews/{review}/report', [ReviewActionsController::class, 'report'])->middleware('auth:sanctum');
 
 // Webhooks (public)
 Route::post('/payments/webhook', StripeWebhookController::class);

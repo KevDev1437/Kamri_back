@@ -2,31 +2,42 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ReviewResource extends JsonResource
 {
-    public function toArray(Request $request): array
+    public function toArray($request): array
     {
+        $user = $request->user();
+
         return [
-            'id'           => $this->id,
-            'rating'       => (int) $this->rating,
-            'comment'      => $this->comment,
-            'anonymous'    => (bool) $this->anonymous,
-            'verified'     => (bool) $this->verified,
+            'id' => $this->id,
+            'productId' => $this->product_id,
+            'rating' => (int) $this->rating,
+            'comment' => $this->comment,
+            'createdAt' => $this->created_at?->toIso8601String(),
+            'verified' => (bool) $this->verified,
+            'photos' => $this->getPhotosUrls(),
             'helpfulCount' => (int) $this->helpful_count,
-            'createdAt'    => $this->created_at?->toIso8601String(),
-
-            'user' => $this->when(!$this->anonymous, function () {
-                return [
-                    'id'    => $this->user->id,
-                    'name'  => $this->user->name,
-                    'avatar'=> $this->user->avatar ?? null,
-                ];
-            }, null),
-
-            'photos' => $this->photos->map(fn($p) => $p->path)->values(),
+            'reported' => $user ? $this->reports()->where('user_id', $user->id)->exists() : false,
+            'helpfulVoted' => $user ? $this->votes()->where('user_id', $user->id)->exists() : false,
+            'user' => [
+                'name' => $this->anonymous ? 'Acheteur vérifié' : $this->user->name,
+                'initials' => $this->anonymous ? 'AV' : substr($this->user->name, 0, 2),
+                'isAnonymous' => (bool) $this->anonymous,
+            ],
         ];
+    }
+
+    private function getPhotosUrls(): array
+    {
+        if (!$this->photos || !is_array($this->photos)) {
+            return [];
+        }
+
+        return array_map(function ($path) {
+            return Storage::disk('public')->url($path);
+        }, $this->photos);
     }
 }

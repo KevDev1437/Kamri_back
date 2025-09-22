@@ -1,4 +1,4 @@
-# API Reviews - Implémentation complète
+# API Reviews - Documentation complète
 
 ## ✅ **Implémentation terminée**
 

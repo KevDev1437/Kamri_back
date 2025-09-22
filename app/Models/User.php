@@ -88,4 +88,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Payment::class);
     }
+
+
 }

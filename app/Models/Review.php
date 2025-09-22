@@ -7,18 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
     protected $fillable = [
-        'user_id', 'product_id', 'rating', 'comment', 'anonymous', 'verified', 'helpful_count'
+        'product_id', 'user_id', 'rating', 'comment', 'photos', 
+        'helpful_count', 'reported_count', 'verified', 'anonymous', 'status'
     ];
 
     protected $casts = [
-        'anonymous' => 'boolean',
+        'photos' => 'array',
         'verified' => 'boolean',
+        'anonymous' => 'boolean',
     ];
 
-    public function user()  { return $this->belongsTo(User::class); }
     public function product() { return $this->belongsTo(Product::class); }
-
-    public function photos() { return $this->hasMany(ReviewPhoto::class); }
-    public function helpfulVotes() { return $this->hasMany(ReviewHelpfulVote::class); }
+    public function user() { return $this->belongsTo(User::class); }
+    public function votes() { return $this->hasMany(ReviewVote::class); }
     public function reports() { return $this->hasMany(ReviewReport::class); }
 }
