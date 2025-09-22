@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ReviewActionsController;
+use App\Http\Controllers\Api\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy']);
     Route::delete('/wishlist', [WishlistController::class, 'clear']); // optionnel
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']); // optionnel
+
+    // Cart
+    Route::get('/cart', [CartController::class, 'show']);
+    Route::post('/cart', [CartController::class, 'add']);
+    Route::put('/cart/{item}', [CartController::class, 'updateItem']);
+    Route::delete('/cart/{item}', [CartController::class, 'removeItem']);
+    Route::delete('/cart', [CartController::class, 'clear']);
+    Route::post('/cart/merge', [CartController::class, 'merge']);
 });
 
 // Reviews (GET public, POST protégés)
