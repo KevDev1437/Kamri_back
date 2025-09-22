@@ -83,4 +83,9 @@ class Product extends Model
     {
         return $this->hasMany(\App\Models\Review::class);
     }
+
+    public function coupons()
+    {
+        return $this->belongsToMany(\App\Models\Coupon::class);
+    }
 }

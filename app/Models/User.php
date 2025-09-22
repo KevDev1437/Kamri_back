@@ -89,5 +89,8 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Payment::class);
     }
 
-
+    public function couponRedemptions()
+    {
+        return $this->hasMany(\App\Models\CouponRedemption::class);
+    }
 }

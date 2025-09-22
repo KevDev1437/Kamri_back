@@ -51,4 +51,9 @@ class Category extends Model
     {
         return $query->where('is_hot', true);
     }
+
+    public function coupons()
+    {
+        return $this->belongsToMany(\App\Models\Coupon::class);
+    }
 }

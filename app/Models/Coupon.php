@@ -3,22 +3,78 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Coupon extends Model
 {
-    protected $fillable = ['code','type','value','min_subtotal','max_uses','used_count','starts_at','ends_at','active'];
-    protected $casts = ['starts_at' => 'datetime','ends_at' => 'datetime'];
+    protected $fillable = [
+        'code', 'type', 'value', 'active', 'starts_at', 'ends_at',
+        'min_subtotal', 'max_redemptions', 'per_user_limit', 'applies_to', 'notes'
+    ];
 
-    public function isValidFor(float $subtotal): bool {
-        if (!$this->active) return false;
-        if ($this->starts_at && now()->lt($this->starts_at)) return false;
-        if ($this->ends_at && now()->gt($this->ends_at)) return false;
-        if ($this->max_uses && $this->used_count >= $this->max_uses) return false;
-        if ($this->min_subtotal && $subtotal < $this->min_subtotal) return false;
+    protected $casts = [
+        'value' => 'decimal:2',
+        'min_subtotal' => 'decimal:2',
+        'active' => 'boolean',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+    ];
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function redemptions()
+    {
+        return $this->hasMany(CouponRedemption::class);
+    }
+
+    public function isActive(): bool
+    {
+        if (!$this->active) {
+            return false;
+        }
+
+        $now = Carbon::now();
+
+        if ($this->starts_at && $now->lt($this->starts_at)) {
+            return false;
+        }
+
+        if ($this->ends_at && $now->gt($this->ends_at)) {
+            return false;
+        }
+
         return true;
     }
 
-    public function computeDiscount(float $subtotal): float {
-        return $this->type === 'percentage' ? round($subtotal * ($this->value / 100), 2) : min($this->value, $subtotal);
+    public function withinDateRange(): bool
+    {
+        return $this->isActive();
+    }
+
+    public function getRemainingRedemptions(): ?int
+    {
+        if (!$this->max_redemptions) {
+            return null;
+        }
+
+        $used = $this->redemptions()->count();
+        return max(0, $this->max_redemptions - $used);
+    }
+
+    public function getUserRedemptionsCount(?User $user): int
+    {
+        if (!$user || !$this->per_user_limit) {
+            return 0;
+        }
+
+        return $this->redemptions()->where('user_id', $user->id)->count();
     }
 }

@@ -3,29 +3,34 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ValidateCouponRequest;
-use App\Models\Coupon;
+use App\Services\CouponService;
+use Illuminate\Http\Request;
 
 class CouponsController extends Controller
 {
-    public function __construct() { $this->middleware('auth:sanctum'); }
+    public function validate(Request $request, CouponService $couponService)
+    {
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:50'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'items.*.qty' => ['required', 'integer', 'min:1'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
+            'shipping' => ['nullable', 'numeric', 'min:0'],
+        ]);
 
-    public function validateCode(ValidateCouponRequest $req) {
-        $code = strtoupper($req->input('code'));
-        $subtotal = (float) $req->input('subtotal');
-        $coupon = Coupon::where('code', $code)->first();
+        $user = $request->user(); // Sanctum si connecté
+        $result = $couponService->validate(
+            $validated['code'],
+            $validated['items'],
+            $user
+        );
 
-        if (!$coupon || !$coupon->isValidFor($subtotal)) {
-            return response()->json(['success' => false, 'message' => 'Coupon invalide'], 422);
+        // Ajouter le shipping au contexte pour free_shipping
+        if (isset($validated['shipping'])) {
+            $validated['items']['shipping'] = $validated['shipping'];
         }
 
-        $discount = $coupon->computeDiscount($subtotal);
-        return response()->json([
-            'success' => true,
-            'coupon' => [
-                'code' => $coupon->code, 'type' => $coupon->type, 'value' => (float) $coupon->value,
-                'discount' => (float) $discount
-            ]
-        ]);
+        return response()->json($result);
     }
 }

@@ -12,6 +12,7 @@ use App\Models\OrderItem;
 use App\Models\ShippingMethod;
 use App\Services\OrderNumberGenerator;
 use App\Services\TotalsService;
+use App\Services\CouponService;
 use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
@@ -52,7 +53,27 @@ class CheckoutController extends Controller
         $shippingPrice = (float) $delivery->price;
         $vatRate = ($country === 'FR') ? 0.20 : 0.21;
 
-        $totals = TotalsService::compute($subtotal, $shippingPrice, $discount, $vatRate);
+        // Revalidation du coupon si fourni (sécurité)
+        $finalDiscount = $discount;
+        $shippingDiscount = 0;
+        if ($couponCode = $req->input('couponCode')) {
+            $couponService = app(CouponService::class);
+            $cartItems = $cart->items->map(fn($item) => [
+                'product_id' => $item->product_id,
+                'qty' => $item->qty,
+                'price' => $item->unit_price,
+            ])->toArray();
+            $cartItems['shipping'] = $shippingPrice;
+
+            $couponResult = $couponService->validate($couponCode, $cartItems, $user);
+
+            if ($couponResult['success']) {
+                $finalDiscount = $couponResult['discount'];
+                $shippingDiscount = $couponResult['shippingDiscount'];
+            }
+        }
+
+        $totals = TotalsService::compute($subtotal, $shippingPrice, $finalDiscount, $vatRate);
 
         DB::beginTransaction();
         try {
@@ -63,7 +84,7 @@ class CheckoutController extends Controller
                 'currency' => 'EUR',
                 'subtotal' => $totals['subtotal'],
                 'discount' => $totals['discount'],
-                'shipping_price' => $totals['shipping'],
+                'shipping_price' => $totals['shipping'] - $shippingDiscount,
                 'tax' => $totals['tax'],
                 'total' => $totals['total'],
                 'delivery_method' => [
@@ -121,9 +142,17 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Optionnel : incrémenter l'usage du coupon si payé
-            if ($coupon && $order->status === 'paid') {
-                $coupon->increment('used_count');
+            // Enregistrer la redemption du coupon si applicable
+            if ($couponCode && isset($couponResult) && $couponResult['success']) {
+                $coupon = \App\Models\Coupon::where('code', strtoupper($couponCode))->first();
+                if ($coupon) {
+                    $couponService->recordRedemption(
+                        $coupon,
+                        $user,
+                        $order->id,
+                        $finalDiscount + $shippingDiscount
+                    );
+                }
             }
 
             // Vide panier

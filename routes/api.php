@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\PaymentsController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\ReviewsController;
+use App\Http\Controllers\Api\CouponsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +76,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Checkout
     Route::get('/shipping/methods', [ShippingController::class, 'index']);
-    Route::post('/coupons/validate', [CouponsController::class, 'validateCode']);
     Route::post('/checkout', [CheckoutController::class, 'placeOrder']);
 
     // Payments
@@ -95,6 +95,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Reviews (GET public, POST protégés)
 Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
+
+// Coupons (validation publique)
+Route::post('/coupons/validate', [CouponsController::class, 'validate']);
 
 
 // Webhooks (public)
